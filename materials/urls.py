@@ -1,19 +1,14 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from . import views
-from apps import MaterialsConfig
+from .views import LessonListCreateAPIView, LessonRetrieveUpdateDestroyAPIView, CourseViewSet  # Исправлен импорт
 
-app_name = MaterialsConfig.name
+app_name = 'materials'  # Просто строковое значение
 
-# Для Course (Viewset)
 router = DefaultRouter()
-router.register(r'courses', views.CourseViewSet)
+router.register(r'courses', CourseViewSet)
 
 urlpatterns = [
-    # Course endpoints
     path('', include(router.urls)),
-
-    # Lesson endpoints
-    path('lessons/', views.LessonListCreateAPIView.as_view(), name='lesson-list'),
-    path('lessons/<int:pk>/', views.LessonRetrieveUpdateDestroyAPIView.as_view(), name='lesson-detail'),
+    path('lessons/', LessonListCreateAPIView.as_view(), name='lesson-list'),
+    path('lessons/<int:pk>/', LessonRetrieveUpdateDestroyAPIView.as_view(), name='lesson-detail'),
 ]

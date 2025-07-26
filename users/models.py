@@ -20,3 +20,53 @@ class User(AbstractUser):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+
+
+class Payment(models.Model):
+    PAYMENT_METHOD_CASH = 'cash'
+    PAYMENT_METHOD_TRANSFER = 'transfer'
+    PAYMENT_METHOD_CHOICES = [
+        (PAYMENT_METHOD_CASH, 'Наличные'),
+        (PAYMENT_METHOD_TRANSFER, 'Перевод на счет'),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='user_payments',
+        verbose_name="Пользователь"
+    )
+
+    payment_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата оплаты"
+    )
+
+    # Ленивые ссылки через строки
+    course = models.ForeignKey(
+        'materials.Course',  # Изменено здесь
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='course_payments',
+        verbose_name="Оплаченный курс"
+    )
+
+    lesson = models.ForeignKey(
+        'materials.Lesson',  # Изменено здесь
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='lesson_payments',
+        verbose_name="Оплаченный урок"
+    )
+
+    amount = models.IntegerField(  # Убрано max_length
+        verbose_name="Сумма оплаты"
+    )
+
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        verbose_name="Способ оплаты"
+    )

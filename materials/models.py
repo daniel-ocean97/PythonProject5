@@ -1,4 +1,5 @@
 from django.db import models
+from config.settings import AUTH_USER_MODEL
 
 class Course(models.Model):
     name = models.CharField(max_length=100, verbose_name="Название курса")
@@ -6,6 +7,13 @@ class Course(models.Model):
         verbose_name="Превью", null=True, blank=True, upload_to="course_preview/"
     )
     description = models.TextField(verbose_name="Описание")
+    owner = models.ForeignKey(
+        AUTH_USER_MODEL,  # Используем кастомную модель пользователя
+        on_delete=models.SET_NULL,  # При удалении пользователя курс остаётся
+        blank=True,
+        null=True,
+        verbose_name="Создатель",
+    )
 
     def __str__(self):
         return self.name
@@ -26,6 +34,13 @@ class Lesson(models.Model):
         Course,
         on_delete=models.CASCADE,  # Удалять уроки при удалении курса
         related_name='lessons',
+    )
+    owner = models.ForeignKey(
+        AUTH_USER_MODEL,  # Используем кастомную модель пользователя
+        on_delete=models.SET_NULL,  # При удалении пользователя урок остаётся
+        blank=True,
+        null=True,
+        verbose_name="Создатель",
     )
 
     def __str__(self):

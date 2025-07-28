@@ -1,6 +1,7 @@
 from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
 from .models import Course, Lesson
+from .paginators import MyPagination
 from .serializers import CourseSerializer, LessonSerializer
 from .permissions import IsOwnerOrManagerForEdit
 
@@ -8,6 +9,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     permission_classes = [IsOwnerOrManagerForEdit]
+    pagination_class = MyPagination
 
     def get_queryset(self):
         """Фильтруем курсы: менеджеры видят все, остальные - только свои"""
@@ -42,6 +44,7 @@ class LessonListCreateAPIView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsOwnerOrManagerForEdit]
+    pagination_class = MyPagination
 
     def get_queryset(self):
         """Фильтруем уроки: менеджеры видят все, остальные - только свои"""

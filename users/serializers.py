@@ -2,6 +2,18 @@ from rest_framework import serializers
 from .models import Payment, User
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
+from .models import Subscription
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ['id', 'user', 'course', 'is_active']
+        read_only_fields = ['id', 'user', 'is_active']
+
+class SubscriptionCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ['course']  # Только поле курса для создания
 
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:

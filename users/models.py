@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+from materials.models import Course
+
 
 class User(AbstractUser):
     username = None
@@ -44,7 +46,7 @@ class Payment(models.Model):
 
     # Ленивые ссылки через строки
     course = models.ForeignKey(
-        'materials.Course',  # Изменено здесь
+        'materials.Course',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -53,7 +55,7 @@ class Payment(models.Model):
     )
 
     lesson = models.ForeignKey(
-        'materials.Lesson',  # Изменено здесь
+        'materials.Lesson',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -61,7 +63,7 @@ class Payment(models.Model):
         verbose_name="Оплаченный урок"
     )
 
-    amount = models.IntegerField(  # Убрано max_length
+    amount = models.IntegerField(
         verbose_name="Сумма оплаты"
     )
 
@@ -70,3 +72,16 @@ class Payment(models.Model):
         choices=PAYMENT_METHOD_CHOICES,
         verbose_name="Способ оплаты"
     )
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name="Курс")
+    is_active = models.BooleanField(verbose_name="Активность подписки")
+
+    def __str__(self):
+        return f"Подписка пользователя {self.user} на курс {self.course}"
+
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"

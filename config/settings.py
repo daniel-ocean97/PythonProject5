@@ -9,8 +9,13 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Загрузить переменные из .env
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -143,8 +148,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
 
-STRIPE_SECRET_KEY = "sk_test_51Rqca14zAGEPncCjXdWtAUtsSyarNywesWLhr552jmkiogY9jlLzRE40omPJGlPvaj52jjH1p0Gpp9UygPiFS4hH00eGMHSQ2C"
-STRIPE_PUBLIC_KEY = "pk_test_51Rqca14zAGEPncCjl6hchUF6cnVfkhIOBgSLcqHrhNEO3sfwPplV6w92lfxJedpqfhX7IqZZzGb9kGsVNBEx1nur009kaPNoj8"
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 
 FRONTEND_SUCCESS_URL = "http://127.0.0.1:8000/"  # URL для редиректа после оплаты
 FRONTEND_CANCEL_URL = "http://127.0.0.1:8000/"  # URL для отмены оплаты

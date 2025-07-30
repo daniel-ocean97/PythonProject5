@@ -1,29 +1,30 @@
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.exceptions import NotFound
-from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.generics import ListAPIView
-from .models import Payment, User, Subscription
-from .serializers import PaymentSerializer
-
-from rest_framework import viewsets, generics, permissions, status
 from rest_framework.response import Response
-from .serializers import UserSerializer, UserCreateSerializer, UserUpdateSerializer, SubscriptionSerializer, SubscriptionCreateSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from .models import Subscription, User
+from .serializers import (SubscriptionCreateSerializer, SubscriptionSerializer,
+                          UserCreateSerializer, UserSerializer,
+                          UserUpdateSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [permissions.IsAuthenticated]  # Требуем аутентификацию для всех операций
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]  # Требуем аутентификацию для всех операций
 
     def get_serializer_class(self):
-        if self.action in ['update', 'partial_update']:
+        if self.action in ["update", "partial_update"]:
             return UserUpdateSerializer
         return UserSerializer
 
     def get_permissions(self):
         # Разрешаем создание (регистрацию) без аутентификации
-        if self.action == 'create':
+        if self.action == "create":
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
@@ -54,37 +55,22 @@ class UserRegistrationView(generics.CreateAPIView):
         return Response(
             {"message": "Пользователь успешно зарегистрирован"},
             status=status.HTTP_201_CREATED,
-            headers=headers
+            headers=headers,
         )
-
-class PaymentViewSet(viewsets.ModelViewSet):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
-    filter_backends = [SearchFilter, OrderingFilter]
-
-    # Поля для фильтрации
-    search_fields = [
-        'course',
-        'lesson',
-        'payment_method',
-    ]
-
-    # Поля для сортировки
-    ordering_fields = ['payment_date']
-    ordering = ['-payment_date']  # Сортировка по умолчанию
 
 
 class SubscriptionCreateView(generics.CreateAPIView):
     """Создание новой подписки"""
+
     serializer_class = SubscriptionCreateSerializer
 
     def create(self, request, *args, **kwargs):
         # Проверяем существование подписки
-        course_id = request.data.get('course')
+        course_id = request.data.get("course")
         if Subscription.objects.filter(user=request.user, course_id=course_id).exists():
             return Response(
                 {"detail": "Подписка на этот курс уже существует"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         # Создаем подписку
@@ -99,16 +85,14 @@ class SubscriptionCreateView(generics.CreateAPIView):
 
 class SubscriptionDeleteView(generics.DestroyAPIView):
     """Удаление подписки"""
-    lookup_field = 'course_id'
+
+    lookup_field = "course_id"
 
     def get_object(self):
         # Ищем подписку по пользователю и курсу
-        course_id = self.kwargs['course_id']
+        course_id = self.kwargs["course_id"]
         try:
-            return Subscription.objects.get(
-                user=self.request.user,
-                course_id=course_id
-            )
+            return Subscription.objects.get(user=self.request.user, course_id=course_id)
         except Subscription.DoesNotExist:
             raise NotFound("Подписка на этот курс не найдена")
 

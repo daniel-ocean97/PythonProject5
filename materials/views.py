@@ -155,8 +155,6 @@ class PaymentSuccessView(APIView):
                 payment.status = "paid"
                 payment.save()
 
-                # Здесь можно предоставить доступ к курсу
-                # Например: user.courses.add(payment.course)
 
                 return Response({"status": "success", "message": "Оплата подтверждена"})
 

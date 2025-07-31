@@ -5,11 +5,28 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.settings import FRONTEND_CANCEL_URL, FRONTEND_SUCCESS_URL
+from users.tasks import \
+    send_course_update_notifications  # Импорт из другого приложения
 
 from .models import Course, Lesson, Payment
 from .paginators import MyPagination
 from .permissions import IsOwnerOrManagerForEdit
 from .serializers import CourseSerializer, LessonSerializer, PaymentSerializer
+
+
+class CourseUpdateView(generics.UpdateAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+    lookup_field = "id"
+
+    def perform_update(self, serializer):
+        # Сохраняем курс
+        instance = serializer.save()
+
+        # Запускаем асинхронную задачу для отправки уведомлений
+        send_course_update_notifications.delay(instance.id)
+
+        return instance
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -154,7 +171,6 @@ class PaymentSuccessView(APIView):
                 payment = Payment.objects.get(stripe_session_id=session_id)
                 payment.status = "paid"
                 payment.save()
-
 
                 return Response({"status": "success", "message": "Оплата подтверждена"})
 

@@ -3,7 +3,6 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 
-from materials.views import CourseUpdateView
 from users.views import (SubscriptionCreateView, SubscriptionDeleteView,
                          UserRegistrationView, UserViewSet)
 
@@ -21,9 +20,6 @@ urlpatterns = [
         "subscriptions/<int:course_id>/",
         SubscriptionDeleteView.as_view(),
         name="subscription-delete",
-    ),
-    path(
-        "update-subscriptions/", CourseUpdateView.as_view(), name="update-subscriptions"
     ),
 ]
 

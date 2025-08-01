@@ -28,9 +28,8 @@ def send_course_update_notifications(course_id):
         user = subscription.user
         subject = f"Обновление курса: {course.title}"
         message = (
-            f"Здравствуйте, {user.first_name or user.username}!\n\n"
-            f"Курс '{course.title}', на который вы подписаны, был обновлен.\n\n"
-            f"Посмотрите новые материалы: {settings.BASE_URL}/courses/{course.id}/"
+            f"Здравствуйте!\n\n"
+            f"Курс '{course.name}', на который вы подписаны, был обновлен.\n\n"
         )
 
         send_mail(

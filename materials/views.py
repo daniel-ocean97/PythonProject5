@@ -14,20 +14,6 @@ from .permissions import IsOwnerOrManagerForEdit
 from .serializers import CourseSerializer, LessonSerializer, PaymentSerializer
 
 
-class CourseUpdateView(generics.UpdateAPIView):
-    queryset = Course.objects.all()
-    serializer_class = CourseSerializer
-    lookup_field = "id"
-
-    def perform_update(self, serializer):
-        # Сохраняем курс
-        instance = serializer.save()
-
-        # Запускаем асинхронную задачу для отправки уведомлений
-        send_course_update_notifications.delay(instance.id)
-
-        return instance
-
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
@@ -45,6 +31,15 @@ class CourseViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Автоматически назначаем владельца при создании"""
         serializer.save(owner=self.request.user)
+
+        def perform_update(self, serializer):
+            # Сохраняем курс
+            instance = serializer.save()
+
+            # Запускаем асинхронную задачу для отправки уведомлений
+            send_course_update_notifications.delay(instance.id)
+
+            return instance
 
     def create(self, request, *args, **kwargs):
         """Запрещаем создание менеджерам"""

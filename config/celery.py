@@ -5,7 +5,7 @@ import os
 from celery import Celery
 
 # Установка переменной окружения для настроек проекта
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "my_project.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 # Создание экземпляра объекта Celery
 app = Celery("config")

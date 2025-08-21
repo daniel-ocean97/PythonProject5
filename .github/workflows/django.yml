@@ -8,6 +8,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+        with:  # Добавьте эту секцию
+          python-version: '3.13'  # И укажите версию Python
       - run: pip install flake8 black
       - run: flake8 . --count --show-source --statistics
       - run: black --check .
@@ -18,18 +20,17 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4  # Обновите до v4 для consistency
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5  # Обновите до v5
       with:
-        python-version: 3.13
+        python-version: '3.13'  # Добавьте кавычки для consistency
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-  
 
     - name: Run migrations
       run: python manage.py migrate
@@ -45,7 +46,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # Обновите до v4
 
       - name: Log in Docker hub
         run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
@@ -69,8 +70,8 @@ jobs:
       - name: Deploy to Server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}  # Исправьте DOCKER_HUB на DOCKERHUB
             docker stop myapp || true
             docker rm myapp || true
-            docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+            docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}  # И здесь тоже
           EOF

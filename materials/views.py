@@ -139,7 +139,7 @@ class CreatePaymentView(APIView):
         )
 
         # Сохраняем платеж в БД
-        payment = Payment.objects.create(
+        Payment.objects.create(
             user=user,
             course=course,
             amount=course.price,

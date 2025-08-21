@@ -1,10 +1,13 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (TokenObtainPairView,
-                                            TokenRefreshView)
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from users.views import (SubscriptionCreateView, SubscriptionDeleteView,
-                         UserRegistrationView, UserViewSet)
+from users.views import (
+    SubscriptionCreateView,
+    SubscriptionDeleteView,
+    UserRegistrationView,
+    UserViewSet,
+)
 
 router = DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")

@@ -11,6 +11,7 @@ jobs:
         with:  # Добавьте эту секцию
           python-version: '3.13'  # И укажите версию Python
       - run: pip install flake8 black
+      - run: black .
       - run: flake8 . --count --show-source --statistics
       - run: black --check .
 

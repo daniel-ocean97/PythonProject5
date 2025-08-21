@@ -5,14 +5,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.settings import FRONTEND_CANCEL_URL, FRONTEND_SUCCESS_URL
-from users.tasks import \
-    send_course_update_notifications  # Импорт из другого приложения
+from users.tasks import send_course_update_notifications  # Импорт из другого приложения
 
 from .models import Course, Lesson, Payment
 from .paginators import MyPagination
 from .permissions import IsOwnerOrManagerForEdit
 from .serializers import CourseSerializer, LessonSerializer, PaymentSerializer
-
 
 
 class CourseViewSet(viewsets.ModelViewSet):

@@ -4,9 +4,13 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Subscription, User
-from .serializers import (SubscriptionCreateSerializer, SubscriptionSerializer,
-                          UserCreateSerializer, UserSerializer,
-                          UserUpdateSerializer)
+from .serializers import (
+    SubscriptionCreateSerializer,
+    SubscriptionSerializer,
+    UserCreateSerializer,
+    UserSerializer,
+    UserUpdateSerializer,
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):

@@ -67,10 +67,10 @@ jobs:
     - name: Validate SSH Key
       run: |
         echo "Содержимое ключа (первые 100 символов):"
-        echo "${{ secrets.SSH_KEY }}" | head -c 100
+        echo "${{ secrets.SSH_USER }}" | head -c 100
         echo ""
         echo "Проверяем формат ключа..."
-        echo "${{ secrets.SSH_KEY }}" > test_key
+        echo "${{ secrets.SSH_USER }}" > test_key
         chmod 600 test_key
         if ssh-keygen -l -f test_key; then
           echo "✅ SSH key is valid"
@@ -83,10 +83,10 @@ jobs:
 
     - name: Deploy to Server
       env:
-        SSH_KEY: ${{ secrets.SSH_KEY }}
+        SSH_KEY: ${{ secrets.SSH_USER }}
       run: |
         # Сохраняем SSH ключ в файл
-        echo "$SSH_KEY" > private_key
+        echo "$SSH_USER" > private_key
         chmod 600 private_key
         
         # Выполняем команды на сервере через SSH

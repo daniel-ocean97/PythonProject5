@@ -35,7 +35,8 @@ jobs:
 
     - name: Run tests
       run: |
-        python manage.py test
+        coverage erase  # Очистка предыдущих данных coverage
+        coverage run --source="." manage.py test
         coverage report
 
   build:

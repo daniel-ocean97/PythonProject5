@@ -57,20 +57,28 @@ jobs:
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
 
   deploy:
-      runs-on: ubuntu-latest
-      needs: build
+    runs-on: ubuntu-latest
+    needs: build
 
-      steps:
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_USER }}
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
 
-      - name: Deploy to Server
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}  # Исправьте DOCKER_HUB на DOCKERHUB
-            docker stop myapp || true
-            docker rm myapp || true
-            docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}  # И здесь тоже
-          EOF
+    - name: Deploy to Server
+      env:
+        SSH_KEY: ${{ secrets.SSH_KEY }}
+      run: |
+        # Сохраняем SSH ключ во временный файл
+        echo "$SSH_KEY" > private_key
+        chmod 600 private_key
+        
+        # Выполняем команды на сервере
+        ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
+          docker stop myapp || true
+          docker rm myapp || true
+          docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
+        EOF
+        
+        # Удаляем временный файл с ключом
+        rm -f private_key

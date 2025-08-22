@@ -72,7 +72,7 @@ jobs:
         echo "$SSH_KEY" > private_key
         chmod 600 private_key
         
-        # Убеждаемся, что файл содержит корректный ключ
+        # Убеждаемся, что файл содержит корректный ключ.
         if ! ssh-keygen -l -f private_key >/dev/null 2>&1; then
           echo "ERROR: Invalid SSH private key format"
           exit 1

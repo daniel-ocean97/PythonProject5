@@ -63,6 +63,23 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
+      
+    - name: Validate SSH Key
+      run: |
+        echo "Содержимое ключа (первые 100 символов):"
+        echo "${{ secrets.SSH_KEY }}" | head -c 100
+        echo ""
+        echo "Проверяем формат ключа..."
+        echo "${{ secrets.SSH_KEY }}" > test_key
+        chmod 600 test_key
+        if ssh-keygen -l -f test_key; then
+          echo "✅ SSH key is valid"
+        else
+          echo "❌ SSH key is invalid"
+          echo "Полное содержимое ключа:"
+          cat test_key
+          exit 1
+        fi
 
     - name: Deploy to Server
       env:
@@ -71,12 +88,6 @@ jobs:
         # Сохраняем SSH ключ в файл
         echo "$SSH_KEY" > private_key
         chmod 600 private_key
-        
-        # Убеждаемся, что файл содержит корректный ключ.
-        if ! ssh-keygen -l -f private_key >/dev/null 2>&1; then
-          echo "ERROR: Invalid SSH private key format"
-          exit 1
-        fi
         
         # Выполняем команды на сервере через SSH
         ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "

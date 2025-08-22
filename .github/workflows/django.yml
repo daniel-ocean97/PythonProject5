@@ -68,17 +68,23 @@ jobs:
       env:
         SSH_KEY: ${{ secrets.SSH_KEY }}
       run: |
-        # Сохраняем SSH ключ во временный файл
+        # Сохраняем SSH ключ в файл
         echo "$SSH_KEY" > private_key
         chmod 600 private_key
         
-        # Выполняем команды на сервере.
-        ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+        # Убеждаемся, что файл содержит корректный ключ
+        if ! ssh-keygen -l -f private_key >/dev/null 2>&1; then
+          echo "ERROR: Invalid SSH private key format"
+          exit 1
+        fi
+        
+        # Выполняем команды на сервере через SSH
+        ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
           docker stop myapp || true
           docker rm myapp || true
           docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
-        EOF
+        "
         
         # Удаляем временный файл с ключом
         rm -f private_key

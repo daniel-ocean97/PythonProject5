@@ -72,7 +72,7 @@ jobs:
         echo "$SSH_KEY" > private_key
         chmod 600 private_key
         
-        # Выполняем команды на сервере
+        # Выполняем команды на сервере.
         ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
           docker stop myapp || true

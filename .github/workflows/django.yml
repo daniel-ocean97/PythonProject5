@@ -8,8 +8,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with:  # Добавьте эту секцию
-          python-version: '3.13'  # И укажите версию Python
+        with:
+          python-version: '3.13'
       - run: pip install flake8 black
       - run: black .
       - run: flake8 . --count --show-source --statistics
@@ -21,12 +21,12 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v4  # Обновите до v4 для consistency
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5  # Обновите до v5
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.13'  # Добавьте кавычки для consistency
+        python-version: '3.13'
 
     - name: Install dependencies
       run: |
@@ -35,7 +35,7 @@ jobs:
 
     - name: Run tests
       run: |
-        coverage erase  # Очистка предыдущих данных coverage
+        coverage erase
         coverage run --source="." manage.py test
         coverage report
 
@@ -45,7 +45,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4  # Обновите до v4
+        uses: actions/checkout@v4
 
       - name: Log in Docker hub
         run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
@@ -63,6 +63,7 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+
       - name: Debug SSH key content
         run: |
           echo "Full key content:"
@@ -76,13 +77,14 @@ jobs:
           echo ""
           echo "Last 50 chars:"
           echo "${{ secrets.SSH_KEY }}" | tail -c 50 | cat -A
+
       - name: Clean and setup SSH key
         run: |
-      # Очищаем ключ от лишних символов
+          # Очищаем ключ от лишних символов
           echo "${{ secrets.SSH_KEY }}" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > private_key
           chmod 600 private_key
-      
-      # Проверяем содержимое
+          
+          # Проверяем содержимое
           echo "Cleaned key first line:"
           head -1 private_key | cat -A
           echo "Cleaned key last line:"
@@ -90,18 +92,18 @@ jobs:
 
       - name: Setup SSH key
         run: |
-        # Сохраняем ключ через heredoc для чистого форматирования
+          # Сохраняем ключ через heredoc для чистого форматирования
           cat > private_key << 'EOL'
           ${{ secrets.SSH_KEY }}
           EOL
           chmod 600 private_key
-        
-        # Проверяем что файл создан
+          
+          # Проверяем что файл создан
           ls -la private_key
           echo "First few lines of key:"
           head -3 private_key
 
       - name: Deploy to Server
         run: |
-        # Используем простую команду без сложного форматирования
+          # Используем простую команду без сложного форматирования
           ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "whoami"

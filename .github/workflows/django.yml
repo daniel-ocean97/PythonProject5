@@ -64,26 +64,31 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Setup SSH key
+      - name: Create SSH key file safely
         run: |
-          # Создаем файл с ключом
-          echo "${{ secrets.SSH_USER }}" > private_key
-          chmod 600 private_key
+          # Создаем ключ напрямую через heredoc
+          cat > private_key << 'EOF'
+          -----BEGIN OPENSSH PRIVATE KEY-----
+          b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+          QyNTUxOQAAACB3F89B/JWLLZW+BnTH2w4jFTKvyDyX7M+ElTey1O63rQAAAKCaqHfPmqh3
+          zwAAAAtzc2gtZWQyNTUxOQAAACB3F89B/JWLLZW+BnTH2w4jFTKvyDyX7M+ElTey1O63rQ
+          AAAEDTIboVVUrflFbRc1NpzSBSHRt+eb+V/NOYKbVQ6E7XDXcXz0H8lYstlb4GdMfbDiMV
+          Mq/IPJfsz4SVN7LU7retAAAAFmRhbmllbEBERVNLVE9QLUxNQkJHUVABAgMEBQYH
+          -----END OPENSSH PRIVATE KEY-----
 
-          # Проверяем что ключ валидный
+          EOF
+
+          chmod 600 private_key
+          echo "Key file created successfully"
+          ls -la private_key
+
+      - name: Verify SSH key
+        run: |
+          # Проверяем ключ
           ssh-keygen -l -f private_key
+          echo "Key is valid"
 
       - name: Test SSH connection
         run: |
-          # Простой тест - используем ключ через файл
-          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "echo 'SSH connection successful'"
-
-      - name: Deploy to Server
-        run: |
-          # Выполняем команды через SSH с явным указанием файла ключа
-          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
-            docker stop myapp || true
-            docker rm myapp || true  
-            docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
-          "
+          # Простейший тест
+          ssh -v -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "echo 'SSH test successful'"

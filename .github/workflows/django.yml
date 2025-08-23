@@ -61,48 +61,48 @@ jobs:
     needs: build
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v4
-    - name: Debug SSH key content
-    run: |
-      echo "Full key content:"
-      echo "${{ secrets.SSH_KEY }}"
-      echo ""
-      echo "Key length:"
-      echo "${{ secrets.SSH_KEY }}" | wc -c
-      echo ""
-      echo "First 50 chars:"
-      echo "${{ secrets.SSH_KEY }}" | head -c 50 | cat -A
-      echo ""
-      echo "Last 50 chars:"
-      echo "${{ secrets.SSH_KEY }}" | tail -c 50 | cat -A
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Debug SSH key content
+        run: |
+          echo "Full key content:"
+          echo "${{ secrets.SSH_KEY }}"
+          echo ""
+          echo "Key length:"
+          echo "${{ secrets.SSH_KEY }}" | wc -c
+          echo ""
+          echo "First 50 chars:"
+          echo "${{ secrets.SSH_KEY }}" | head -c 50 | cat -A
+          echo ""
+          echo "Last 50 chars:"
+          echo "${{ secrets.SSH_KEY }}" | tail -c 50 | cat -A
 
       - name: Clean and setup SSH key
-      run: |
+        run: |
       # Очищаем ключ от лишних символов
-      echo "${{ secrets.SSH_KEY }}" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > private_key
-      chmod 600 private_key
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > private_key
+          chmod 600 private_key
       
       # Проверяем содержимое
-      echo "Cleaned key first line:"
-      head -1 private_key | cat -A
-      echo "Cleaned key last line:"
-      tail -1 private_key | cat -A
+          echo "Cleaned key first line:"
+          head -1 private_key | cat -A
+          echo "Cleaned key last line:"
+          tail -1 private_key | cat -A
 
       - name: Setup SSH key
-      run: |
+        run: |
         # Сохраняем ключ через heredoc для чистого форматирования
-        cat > private_key << 'EOL'
-        ${{ secrets.SSH_KEY }}
-        EOL
-        chmod 600 private_key
+          cat > private_key << 'EOL'
+          ${{ secrets.SSH_KEY }}
+          EOL
+          chmod 600 private_key
         
         # Проверяем что файл создан
-        ls -la private_key
-        echo "First few lines of key:"
-        head -3 private_key
+          ls -la private_key
+          echo "First few lines of key:"
+          head -3 private_key
 
       - name: Deploy to Server
-      run: |
+        run: |
         # Используем простую команду без сложного форматирования
-        ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "whoami"
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "whoami"

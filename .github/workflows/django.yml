@@ -67,21 +67,21 @@ jobs:
       - name: Debug SSH key content
         run: |
           echo "Full key content:"
-          echo "${{ secrets.SSH_KEY }}"
+          echo "${{ secrets.SSH_USER }}"
           echo ""
           echo "Key length:"
-          echo "${{ secrets.SSH_KEY }}" | wc -c
+          echo "${{ secrets.USER }}" | wc -c
           echo ""
           echo "First 50 chars:"
-          echo "${{ secrets.SSH_KEY }}" | head -c 50 | cat -A
+          echo "${{ secrets.SSH_USER }}" | head -c 50 | cat -A
           echo ""
           echo "Last 50 chars:"
-          echo "${{ secrets.SSH_KEY }}" | tail -c 50 | cat -A
+          echo "${{ secrets.SSH_USER }}" | tail -c 50 | cat -A
 
       - name: Clean and setup SSH key
         run: |
           # Очищаем ключ от лишних символов
-          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > private_key
+          echo "${{ secrets.SSH_USER}}" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > private_key
           chmod 600 private_key
           
           # Проверяем содержимое
@@ -94,7 +94,7 @@ jobs:
         run: |
           # Сохраняем ключ через heredoc для чистого форматирования
           cat > private_key << 'EOL'
-          ${{ secrets.SSH_KEY }}
+          ${{ secrets.SSH_USER }}
           EOL
           chmod 600 private_key
           

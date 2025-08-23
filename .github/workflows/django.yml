@@ -63,6 +63,11 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
+    - name: Simple SSH test
+      run: |
+        echo "${{ secrets.SSH_KEY }}" > private_key
+        chmod 600 private_key
+        ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "whoami && pwd"
 
     - name: Setup SSH key
       run: |

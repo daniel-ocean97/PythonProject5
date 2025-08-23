@@ -72,7 +72,7 @@ docker-compose logs celery_beat | grep "Scheduler"
 Создайте виртуальную машину с Ubuntu 20.04/22.04 на любом облачном провайдере (AWS, DigitalOcean, Vultr и т.д.).
 
 2. Настройка сервера
-Подключитесь к серверу по SSH и выполните следующие команды:
+Подключитесь к серверу (51.250.37.202 (при подключении на мой YandexCloud сервер)) по SSH и выполните следующие команды:
 
 bash
 # Обновление системы
@@ -100,9 +100,9 @@ newgrp docker
 1. Подготовка секретов
 В настройках вашего GitHub репозитория (Settings -> Secrets and variables -> Actions) добавьте следующие секреты:
 
-SSH_PRIVATE_KEY: Приватный SSH-ключ для доступа к серверу
+SSH_KEY: Приватный SSH-ключ для доступа к серверу
 
-SERVER_IP: IP-адрес вашего сервера
+SERVER_IP: "51.250.37.202" (IP моего сервера на Yandex Cloud)
 
 SSH_USER: Имя пользователя для SSH (обычно root или ubuntu)
 
@@ -115,17 +115,19 @@ DEPLOY_DIR: Путь для деплоя на сервере (например, 
 2. Генерация SSH-ключа
 Сгенерируйте SSH-ключ на вашем локальном компьютере, если у вас его еще нет:
 
-bash
+```
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+```
+
 Добавьте публичный ключ на сервер:
 
 ```
 ssh-copy-id youruser@yourserverip
 ```
-Приватный ключ добавьте в секреты GitHub как SSH_PRIVATE_KEY.
+Приватный ключ добавьте в секреты GitHub как SSH_KEY.
 
 3. Настройка workflow
-Ваш файл GitHub Actions workflow (.github/workflows/ci-cd.yml) уже настроен для автоматического деплоя. При каждом пуше в ветку main или master будет выполняться:
+Ваш файл GitHub Actions workflow (.github/workflows/django.yml) уже настроен для автоматического деплоя. При каждом пуше в ветку main или master будет выполняться:
 
 Тестирование приложения
 

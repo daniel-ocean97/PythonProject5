@@ -63,13 +63,33 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
-    - name: Simple SSH test
-      run: |
-        echo "${{ secrets.SSH_KEY }}" > private_key
-        chmod 600 private_key
-        ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "whoami && pwd"
+    - name: Debug SSH key content
+    run: |
+      echo "Full key content:"
+      echo "${{ secrets.SSH_KEY }}"
+      echo ""
+      echo "Key length:"
+      echo "${{ secrets.SSH_KEY }}" | wc -c
+      echo ""
+      echo "First 50 chars:"
+      echo "${{ secrets.SSH_KEY }}" | head -c 50 | cat -A
+      echo ""
+      echo "Last 50 chars:"
+      echo "${{ secrets.SSH_KEY }}" | tail -c 50 | cat -A
 
-    - name: Setup SSH key
+      - name: Clean and setup SSH key
+      run: |
+      # Очищаем ключ от лишних символов
+      echo "${{ secrets.SSH_KEY }}" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > private_key
+      chmod 600 private_key
+      
+      # Проверяем содержимое
+      echo "Cleaned key first line:"
+      head -1 private_key | cat -A
+      echo "Cleaned key last line:"
+      tail -1 private_key | cat -A
+
+      - name: Setup SSH key
       run: |
         # Сохраняем ключ через heredoc для чистого форматирования
         cat > private_key << 'EOL'
@@ -82,7 +102,7 @@ jobs:
         echo "First few lines of key:"
         head -3 private_key
 
-    - name: Deploy to Server
+      - name: Deploy to Server
       run: |
         # Используем простую команду без сложного форматирования
         ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "whoami"

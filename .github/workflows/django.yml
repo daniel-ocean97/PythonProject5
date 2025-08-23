@@ -64,29 +64,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Create SSH key file safely
+      - name: Setup SSH key
         run: |
-          # Создаем ключ напрямую через heredoc
-          cat > private_key << 'EOF'
-          -----BEGIN OPENSSH PRIVATE KEY-----
-          b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-          QyNTUxOQAAACB3F89B/JWLLZW+BnTH2w4jFTKvyDyX7M+ElTey1O63rQAAAKCaqHfPmqh3
-          zwAAAAtzc2gtZWQyNTUxOQAAACB3F89B/JWLLZW+BnTH2w4jFTKvyDyX7M+ElTey1O63rQ
-          AAAEDTIboVVUrflFbRc1NpzSBSHRt+eb+V/NOYKbVQ6E7XDXcXz0H8lYstlb4GdMfbDiMV
-          Mq/IPJfsz4SVN7LU7retAAAAFmRhbmllbEBERVNLVE9QLUxNQkJHUVABAgMEBQYH
-          -----END OPENSSH PRIVATE KEY-----
-
-          EOF
-
+          echo "${{ secrets.SSH_KEY }}" > private_key
           chmod 600 private_key
-          echo "Key file created successfully"
-          ls -la private_key
-
-      - name: Verify SSH key
-        run: |
-          # Проверяем ключ
-          ssh-keygen -l -f private_key
-          echo "Key is valid"
 
       - name: Test SSH connection
         run: |

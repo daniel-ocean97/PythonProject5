@@ -64,46 +64,26 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Debug SSH key content
-        run: |
-          echo "Full key content:"
-          echo "${{ secrets.SSH_USER }}"
-          echo ""
-          echo "Key length:"
-          echo "${{ secrets.USER }}" | wc -c
-          echo ""
-          echo "First 50 chars:"
-          echo "${{ secrets.SSH_USER }}" | head -c 50 | cat -A
-          echo ""
-          echo "Last 50 chars:"
-          echo "${{ secrets.SSH_USER }}" | tail -c 50 | cat -A
-
-      - name: Clean and setup SSH key
-        run: |
-          # Очищаем ключ от лишних символов
-          echo "${{ secrets.SSH_USER}}" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > private_key
-          chmod 600 private_key
-          
-          # Проверяем содержимое
-          echo "Cleaned key first line:"
-          head -1 private_key | cat -A
-          echo "Cleaned key last line:"
-          tail -1 private_key | cat -A
-
       - name: Setup SSH key
         run: |
-          # Сохраняем ключ через heredoc для чистого форматирования
-          cat > private_key << 'EOL'
-          ${{ secrets.SSH_USER }}
-          EOL
+          # Создаем файл с ключом
+          echo "${{ secrets.SSH_USER }}" > private_key
           chmod 600 private_key
-          
-          # Проверяем что файл создан
-          ls -la private_key
-          echo "First few lines of key:"
-          head -3 private_key
+
+          # Проверяем что ключ валидный
+          ssh-keygen -l -f private_key
+
+      - name: Test SSH connection
+        run: |
+          # Простой тест - используем ключ через файл
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "echo 'SSH connection successful'"
 
       - name: Deploy to Server
         run: |
-          # Используем простую команду без сложного форматирования
-          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "whoami"
+          # Выполняем команды через SSH с явным указанием файла ключа
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
+            docker stop myapp || true
+            docker rm myapp || true  
+            docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
+          "

@@ -90,5 +90,4 @@ jobs:
 
       - name: Test SSH connection
         run: |
-          # Простейший тест
-          ssh -v -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "echo 'SSH test successful'"
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "echo 'Connected as $(whoami)'"

@@ -76,7 +76,6 @@ jobs:
           echo ""
           echo "Last 50 chars:"
           echo "${{ secrets.SSH_KEY }}" | tail -c 50 | cat -A
-
       - name: Clean and setup SSH key
         run: |
       # Очищаем ключ от лишних символов

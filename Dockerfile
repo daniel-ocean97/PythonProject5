@@ -15,9 +15,8 @@ ENV PYTHONUNBUFFERED 1
 # Создаем и переходим в рабочую директорию
 WORKDIR /app
 
-# Копируем nginx конфигурацию
+# Просто копируем nginx конфиг в основную директорию конфигов
 COPY nginx.conf /etc/nginx/nginx.conf
-RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
 # Копируем зависимости и устанавливаем их
 COPY requirements.txt .
@@ -26,8 +25,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Копируем проект
 COPY . .
 
-# Открываем порты
+# Открываем порт
 EXPOSE 80
 
 # Запускаем и nginx и Django
-CMD nginx -g 'daemon off;' & python manage.py runserver 0.0.0.0:8000
+CMD nginx && python manage.py runserver 0.0.0.0:8000

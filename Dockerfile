@@ -16,7 +16,7 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 # Копируем nginx конфигурацию
-COPY nginx.conf /etc/nginx/sites-available/default
+COPY nginx.conf /etc/nginx/nginx.conf
 RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
 # Копируем зависимости и устанавливаем их
@@ -30,4 +30,4 @@ COPY . .
 EXPOSE 80
 
 # Запускаем и nginx и Django
-CMD service nginx start && python manage.py runserver 0.0.0.0:8000
+CMD nginx -g 'daemon off;' & python manage.py runserver 0.0.0.0:8000

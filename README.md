@@ -17,7 +17,7 @@
 
 ```bash
 # Клонировать репозиторий
-git clone https://github.com/daniel-ocean97/PythonProject5
+git clone https://github.com/daniel-ocean97/Learning-Platform
 
 
 # Создать файл окружения (на основе примера)

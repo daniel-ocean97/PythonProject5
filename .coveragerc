@@ -1,0 +1,6 @@
+[run]
+source = .
+omit =
+    */migrations/*
+    */tests/*
+    */__pycache__/*

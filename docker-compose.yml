@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # Основной бэкенд (Django приложение)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: gunicorn --bind 0.0.0.0:8000 config.wsgi:application
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # База данных PostgreSQL
+  db:
+    image: postgres:13-alpine
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: ${NAME}
+      POSTGRES_USER: ${USER}
+      POSTGRES_PASSWORD: ${PASSWORD}
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Сервер Redis
+  redis:
+    image: redis:6-alpine
+    volumes:
+      - redis_data:/data
+    env_file:
+      - .env
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Celery Worker
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A config worker -l info
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+      - backend
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Celery Beat (периодические задачи)
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A config beat -l info
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+      - backend
+      - celery_worker
+    restart: unless-stopped
+    networks:
+      - app-network
+
+# Сетевые настройки
+networks:
+  app-network:
+    driver: bridge
+
+# Тома для постоянного хранения данных
+volumes:
+  postgres_data:
+  redis_data:

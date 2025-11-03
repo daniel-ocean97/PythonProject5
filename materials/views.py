@@ -14,7 +14,6 @@ from .permissions import IsOwnerOrManagerForEdit
 from .serializers import CourseSerializer, LessonSerializer, PaymentSerializer
 
 
-
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
@@ -141,7 +140,7 @@ class CreatePaymentView(APIView):
         )
 
         # Сохраняем платеж в БД
-        payment = Payment.objects.create(
+        Payment.objects.create(
             user=user,
             course=course,
             amount=course.price,
@@ -173,3 +172,4 @@ class PaymentSuccessView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            
